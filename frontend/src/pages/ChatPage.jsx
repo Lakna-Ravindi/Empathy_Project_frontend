@@ -9,6 +9,7 @@ import { getSkill, getSkills } from "../api/contentApi";
 import { findNextObjective, idOf, titleOf } from "../utils/nextObjective";
 import { verifyQuickCheckAnswer } from "../utils/quickCheck";
 import { Mic, Send } from "lucide-react";
+import "./ChatPages.css";
 
 // Backend returns the student's full name at user.name (e.g. "Jane Doe").
 // This pulls just the first token for the greeting store, falling back
@@ -46,10 +47,10 @@ function ChatInputArea({ onSend, isLoading, disabled, answerStyle, onAnswerStyle
   };
 
   return (
-    <div className="px-5 pb-4 pt-1">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-xs font-medium text-gray-500">Response style:</span>
-        <div className="flex rounded-lg bg-gray-100 p-0.5" role="group" aria-label="Response style">
+    <div className="chat-composer__inner">
+      <div className="chat-response-style" role="group" aria-label="Response style">
+        <span className="chat-response-style__label">Response:</span>
+        <div className="chat-response-style__options">
           {[
             { value: "short", label: "Short" },
             { value: "long", label: "Long" },
@@ -59,7 +60,7 @@ function ChatInputArea({ onSend, isLoading, disabled, answerStyle, onAnswerStyle
               type="button"
               onClick={() => onAnswerStyleChange(style.value)}
               aria-pressed={answerStyle === style.value}
-              className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+              className={`chat-response-style__option ${
                 answerStyle === style.value
                   ? "bg-white text-indigo-700 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
@@ -70,7 +71,7 @@ function ChatInputArea({ onSend, isLoading, disabled, answerStyle, onAnswerStyle
           ))}
         </div>
       </div>
-      <div className="flex items-end gap-2 bg-white border border-gray-200 rounded-2xl px-3 py-2.5 shadow-sm focus-within:border-indigo-300 transition-colors">
+      <div className="chat-input-row">
         <textarea
           ref={ref}
           value={text}
@@ -84,11 +85,12 @@ function ChatInputArea({ onSend, isLoading, disabled, answerStyle, onAnswerStyle
           className="flex-1 resize-none outline-none text-sm text-gray-700 placeholder-gray-400 bg-transparent leading-relaxed max-h-28 overflow-y-auto"
           style={{ minHeight: 24 }}
         />
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          <button className="text-gray-400 hover:text-gray-600 transition-colors p-1">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button type="button" className="chat-input-row__mic text-gray-400 hover:text-gray-600 transition-colors p-1" aria-label="Use microphone">
             <Mic size={16} />
           </button>
           <button
+            type="button"
             onClick={submit}
             disabled={!text.trim() || isLoading || disabled}
             className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all
@@ -746,19 +748,19 @@ console.log("Question-relevant content:", context.question_relevant_content);
   };
 
   return (
-    <div className="chat-page flex flex-col h-full overflow-hidden">
+    <div className="chat-page chat-page--seek flex h-full min-h-0 flex-col overflow-hidden">
 
       {/* Chat area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="chat-page__header px-6 pt-5 pb-2 flex-shrink-0">
-          <div className="flex items-center gap-2 mb-1">
+      <div className="chat-page__body flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="chat-page__header shrink-0">
+          <div className="flex items-center gap-2">
             <span className="text-xl">💬</span>
             <h1 className="text-xl font-bold text-gray-800">Chat With EmpathyGuru</h1>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 mx-5 mb-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+        <div className="chat-surface chat-page__conversation flex min-h-0 flex-1 flex-col overflow-hidden bg-white rounded-2xl border border-gray-100 shadow-sm">
           <ChatWindow
             messages={messages}
             isLoading={isLoading}
@@ -770,7 +772,7 @@ console.log("Question-relevant content:", context.question_relevant_content);
         </div>
 
         {/* Input */}
-        <div className="flex-shrink-0">
+        <div className="chat-composer shrink-0">
           <ChatInputArea
             onSend={handleSend}
             isLoading={isLoading}
