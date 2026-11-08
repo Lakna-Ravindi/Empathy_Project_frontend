@@ -1,0 +1,363 @@
+.app-main {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  scrollbar-gutter: stable;
+}
+
+.app-shell {
+  --app-surface: #ffffff;
+  --app-border: #e5e7eb;
+  --app-muted: #697586;
+}
+
+.app-topbar {
+  min-height: 72px;
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  box-shadow: 0 1px 0 rgba(31, 41, 55, 0.03);
+}
+
+.app-main > * {
+  animation: app-content-in 220ms ease both;
+}
+
+@keyframes app-content-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sidebar-mobile-trigger,
+.sidebar-backdrop,
+.sidebar-mobile-nav {
+  display: none;
+}
+
+.app-shell [class~="bg-indigo-600"] {
+  background-color: var(--app-accent);
+}
+
+.app-shell [class~="text-indigo-600"],
+.app-shell [class~="text-indigo-700"] {
+  color: var(--app-accent);
+}
+
+.app-shell [class~="border-indigo-300"],
+.app-shell [class~="border-indigo-500"] {
+  border-color: var(--app-accent);
+}
+
+.app-shell main .student-dashboard__header,
+.app-shell main .admin-dashboard__header,
+.app-shell main .quiz-page__header,
+.app-shell main .chat-page__header,
+.app-shell main .settings-page__header,
+.app-shell main .content-page__header,
+.app-shell main .skill-detail__hero,
+.app-shell main .progress-header,
+.app-shell main .history-header {
+  box-sizing: border-box;
+  padding: 18px 20px;
+  border: 1px solid #e8e1d7;
+  border-radius: 16px;
+  background: #f6f2ec;
+}
+
+.app-shell main .student-dashboard__quick-action {
+  color: #3a342b;
+}
+
+.app-shell main .quiz-page__header {
+  color: #202938;
+}
+
+.app-shell[data-color-mode="dark"] {
+  --app-surface: #1f2937;
+  --app-border: #374151;
+  --app-muted: #cbd5e1;
+  color-scheme: dark;
+}
+
+.app-shell[data-color-mode="dark"] .app-topbar {
+  color: #f3f4f6;
+  border-color: #374151;
+  background-color: #1f2937;
+}
+
+.app-shell[data-color-mode="dark"] .app-topbar [class~="text-gray-800"],
+.app-shell[data-color-mode="dark"] .app-topbar [class~="text-gray-700"],
+.app-shell[data-color-mode="dark"] .app-topbar [class~="text-gray-600"],
+.app-shell[data-color-mode="dark"] .app-topbar [class~="text-gray-500"] {
+  color: #e5e7eb;
+}
+
+.app-shell[data-color-mode="dark"] main [class~="bg-white"] {
+  color: #e5e7eb;
+  border-color: #374151;
+  background-color: #1f2937;
+}
+
+.app-shell[data-color-mode="dark"] main [class~="bg-gray-50"],
+.app-shell[data-color-mode="dark"] main [class~="bg-gray-100"] {
+  background-color: #111827;
+}
+
+.app-shell[data-color-mode="dark"] main [class~="text-gray-900"],
+.app-shell[data-color-mode="dark"] main [class~="text-gray-800"],
+.app-shell[data-color-mode="dark"] main [class~="text-gray-700"],
+.app-shell[data-color-mode="dark"] main [class~="text-gray-600"],
+.app-shell[data-color-mode="dark"] main [class~="text-gray-500"] {
+  color: #e5e7eb;
+}
+
+.app-shell[data-color-mode="dark"] main [class~="border-gray-100"],
+.app-shell[data-color-mode="dark"] main [class~="border-gray-200"],
+.app-shell[data-color-mode="dark"] main [class~="border-gray-300"] {
+  border-color: #4b5563;
+}
+
+.app-shell[data-color-mode="dark"] .student-dashboard {
+  color: #e5e7eb;
+  background: transparent;
+}
+
+.app-shell[data-color-mode="dark"] .student-dashboard [class*="text-[#3A342B]"],
+.app-shell[data-color-mode="dark"] .student-dashboard [class*="text-[#6B6255]"],
+.app-shell[data-color-mode="dark"] .student-dashboard [class*="text-[#9B8E7E]"] {
+  color: #e5e7eb;
+}
+
+.app-shell[data-color-mode="dark"] .student-dashboard [class~="bg-white"] {
+  border-color: #374151;
+  background-color: #1f2937;
+}
+
+.app-shell[data-color-mode="dark"] main .student-dashboard__header,
+.app-shell[data-color-mode="dark"] main .admin-dashboard__header,
+.app-shell[data-color-mode="dark"] main .quiz-page__header,
+.app-shell[data-color-mode="dark"] main .chat-page__header,
+.app-shell[data-color-mode="dark"] main .settings-page__header,
+.app-shell[data-color-mode="dark"] main .content-page__header,
+.app-shell[data-color-mode="dark"] main .skill-detail__hero,
+.app-shell[data-color-mode="dark"] main .progress-header,
+.app-shell[data-color-mode="dark"] main .history-header {
+  border-color: #374151;
+  background: #1f2937;
+}
+
+.app-shell[data-color-mode="dark"] main .student-dashboard__quick-action {
+  border-color: #374151;
+  background: #1f2937;
+  color: #f3f4f6;
+}
+
+.app-shell[data-color-mode="dark"] main .student-dashboard__quick-action h3,
+.app-shell[data-color-mode="dark"] main .student-dashboard__quick-action p {
+  color: #e5e7eb;
+}
+
+.app-shell[data-color-mode="dark"] main .student-dashboard__quick-action > div > span {
+  color: #ddd6fe;
+  background: #374151;
+}
+
+.app-shell[data-color-mode="dark"] main .student-dashboard__quick-action--chat button {
+  border: 1px solid #6d5bd0;
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+.app-shell[data-color-mode="dark"] main .student-dashboard__quick-action--content button {
+  border-color: #6b7280;
+  background: #374151;
+  color: #f3f4f6;
+}
+
+.app-shell[data-color-mode="dark"] main .history-heading h1 {
+  color: #f3f4f6;
+}
+
+.app-shell[data-color-mode="dark"] main .history-heading p {
+  color: #cbd5e1;
+}
+
+.app-shell[data-color-mode="dark"] main .quiz-page__header {
+  color: #f3f4f6;
+}
+
+.app-shell[data-color-mode="dark"] main .quiz-page__header p {
+  color: #cbd5e1;
+}
+
+.app-shell[data-color-mode="dark"] .chat-page,
+.app-shell[data-color-mode="dark"] .content-page,
+.app-shell[data-color-mode="dark"] .progress-page,
+.app-shell[data-color-mode="dark"] .history-page {
+  color: #e5e7eb;
+  background: transparent;
+}
+
+.app-shell[data-color-mode="dark"] .content-page,
+.app-shell[data-color-mode="dark"] .progress-page {
+  --progress-ink: #f3f4f6;
+  --progress-muted: #cbd5e1;
+  --progress-line: #4b5563;
+  --progress-panel: #1f2937;
+  --progress-soft: #273449;
+}
+
+.app-shell .content-page,
+.app-shell .progress-page {
+  --progress-accent: var(--app-accent);
+  --progress-accent-dark: var(--app-accent);
+}
+
+.app-shell[data-color-mode="dark"] .content-page__title,
+.app-shell[data-color-mode="dark"] .progress-header h1 {
+  color: #f3f4f6;
+}
+
+.app-shell[data-color-mode="dark"] .content-page__card,
+.app-shell[data-color-mode="dark"] .progress-page .overall-progress-card,
+.app-shell[data-color-mode="dark"] .progress-page .skill-card {
+  color: #e5e7eb;
+  background-color: #1f2937;
+}
+
+.app-shell[data-color-mode="dark"] .history-list,
+.app-shell[data-color-mode="dark"] .history-count,
+.app-shell[data-color-mode="dark"] .history-state {
+  color: #e5e7eb;
+  border-color: #4b5563;
+  background-color: #1f2937;
+}
+
+.app-shell[data-color-mode="dark"] .history-entry + .history-entry {
+  border-color: #374151;
+}
+
+.app-shell[data-color-mode="dark"] .history-question:hover,
+.app-shell[data-color-mode="dark"] .history-entry[open] .history-question,
+.app-shell[data-color-mode="dark"] .history-response {
+  background-color: #273449;
+}
+
+.app-shell[data-color-mode="dark"] .history-question__content strong,
+.app-shell[data-color-mode="dark"] .history-response p {
+  color: #e5e7eb;
+}
+
+.app-shell[data-background="beach"] .student-dashboard,
+.app-shell[data-background="forest"] .student-dashboard,
+.app-shell[data-background="beach"] .chat-page,
+.app-shell[data-background="forest"] .chat-page,
+.app-shell[data-background="beach"] .content-page,
+.app-shell[data-background="forest"] .content-page,
+.app-shell[data-background="beach"] .progress-page,
+.app-shell[data-background="forest"] .progress-page,
+.app-shell[data-background="beach"] .history-page,
+.app-shell[data-background="forest"] .history-page {
+  background: transparent;
+}
+
+@media (max-width: 767px) {
+  .app-sidebar {
+    position: fixed;
+    z-index: 60;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(82vw, 292px) !important;
+    min-width: 0 !important;
+    transform: translateX(-105%);
+    box-shadow: 12px 0 30px rgba(15, 23, 42, 0.18);
+  }
+
+  .app-sidebar.is-mobile-open {
+    transform: translateX(0);
+  }
+
+  .app-sidebar .absolute {
+    display: none;
+  }
+
+  .sidebar-mobile-trigger {
+    position: fixed;
+    z-index: 40;
+    top: 14px;
+    left: 14px;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    color: var(--app-accent, #4f46e5);
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    z-index: 50;
+    inset: 0;
+    display: block;
+    border: 0;
+    background: rgba(15, 23, 42, 0.38);
+  }
+
+  .sidebar-mobile-nav {
+    position: fixed;
+    z-index: 40;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    padding: 8px;
+    border: 1px solid var(--app-border);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--app-surface) 94%, transparent);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(14px);
+  }
+
+  .app-shell[data-color-mode="dark"] .sidebar-mobile-nav,
+  .app-shell[data-color-mode="dark"] .sidebar-mobile-trigger {
+    color: #e5e7eb;
+    border-color: #374151;
+    background: #1f2937;
+  }
+
+  .sidebar-mobile-nav a,
+  .sidebar-mobile-nav button {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 2px;
+    color: var(--app-muted);
+    border: 0;
+    background: transparent;
+    font-size: 10px;
+    text-decoration: none;
+  }
+
+  .sidebar-mobile-nav a.active {
+    color: var(--app-accent, #4f46e5);
+    font-weight: 700;
+  }
+
+  .app-topbar {
+    min-height: 68px;
+    padding-left: 68px !important;
+  }
+
+  .app-main {
+    padding-bottom: 82px;
+    background-attachment: scroll;
+  }
+}

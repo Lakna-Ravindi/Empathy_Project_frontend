@@ -1,34 +1,26 @@
 // src/components/common/Topbar.jsx
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { useSettingsStore } from "../../store/settingsStore";
+import beachSound from "../../assets/audio/beach_sound.mp3";
+import forestSound from "../../assets/audio/forest_sound.mp3";
+//import { useAuth } from "../../hooks/useAuth";
+import { getSkills } from "../../api/contentApi";
+import EditProfileModal from "./EditProfileModal";
 import {
-  BookOpen, Volume2, VolumeX, User, LogOut, ArrowRight,
+  BookOpen, Volume2, VolumeX, User, LogOut, ArrowRight, Settings,
 } from "lucide-react";
-
-// Mock skills content (replace with real data from API later)
-const SKILLS = [
-  { id: 1, title: "Calming the Body and Mind", summary: "Simple breathing and grounding practices that settle the nervous system before working with harder emotions." },
-  { id: 2, title: "Ethical Mindfulness", summary: "Noticing your own values and intentions in the moment, so your actions stay aligned with what matters to you." },
-  { id: 3, title: "Emotional Awareness", summary: "Naming what you feel as it happens, and recognizing the same feelings as they show up in other people." },
-  { id: 4, title: "Self-Compassion", summary: "Treating your own mistakes and struggles with the same kindness you would offer a good friend." },
-  { id: 5, title: "Impartiality and Common Humanity", summary: "Extending care evenly, and remembering that everyone shares the same basic wish to be happy and free from suffering." },
-  { id: 6, title: "Forgiveness and Gratitude", summary: "Letting go of resentment at your own pace, and noticing what is already good, safe, or supportive around you." },
-  { id: 7, title: "Empathic Concern", summary: "Tuning in to someone else's distress and genuinely caring about their wellbeing, without taking it on as your own." },
-  { id: 8, title: "Compassion", summary: "Turn empathy into a wish and willingness to help." },
-];
 
 // Backend returns the student's full name at user.name (e.g. "Jane Doe").
 // This pulls just the first token for a friendlier greeting, falling back
 // to username, then a generic label, if name isn't available.
-function getFirstName(user) {
-  if (user?.name) {
-    const first = user.name.trim().split(/\s+/)[0];
-    if (first) return first;
-  }
+function getUsername(user) {
   return user?.username ?? null;
 }
+
+
 
 // Hook: close a popover when clicking outside any of the given refs
 function useOnClickOutside(refs, handler) {
@@ -49,11 +41,17 @@ function useOnClickOutside(refs, handler) {
 
 function ContentMenu() {
   const [open, setOpen] = useState(false);
+  const [skills, setSkills] = useState([]);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const navigate = useNavigate();
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
   useOnClickOutside([buttonRef, menuRef], () => setOpen(false));
+
+  useEffect(() => {
+    if (!open) return;
+    void getSkills().then(setSkills).catch(() => setSkills([]));
+  }, [open]);
 
   useLayoutEffect(() => {
     if (open && buttonRef.current) {
@@ -82,13 +80,13 @@ function ContentMenu() {
         >
           <div className="px-4 py-3 border-b border-gray-100">
             <p className="text-sm font-semibold text-gray-800">Skills Content</p>
-            <p className="text-xs text-gray-400">8 skills available</p>
+            <p className="text-xs text-gray-400">{skills.length} skills available</p>
           </div>
           <ul className="max-h-64 overflow-y-auto divide-y divide-gray-50">
-            {SKILLS.map((skill) => (
-              <li key={skill.id} className="px-4 py-2.5 hover:bg-gray-50 transition-colors">
+            {skills.map((skill) => (
+              <li key={skill.skill_id} className="px-4 py-2.5 hover:bg-gray-50 transition-colors">
                 <p className="text-sm font-medium text-gray-800">{skill.title}</p>
-                <p className="text-xs text-gray-400 truncate">{skill.summary}</p>
+                <p className="text-xs text-gray-400 truncate">{skill.description || skill.summary}</p>
               </li>
             ))}
           </ul>
@@ -105,15 +103,82 @@ function ContentMenu() {
   );
 }
 
-// Sound toggle — icon-only (mute / unmute — background music hook-up comes later)
+// Sound toggle — loops the ambient audio for the selected background scene.
 
 function SoundToggle() {
   const [muted, setMuted] = useState(true);
+  const [playbackError, setPlaybackError] = useState("");
+  const backgroundScene = useSettingsStore((state) => state.backgroundScene);
+  const audioRef = useRef(null);
+  const mutedRef = useRef(muted);
+  const playbackAttemptRef = useRef(0);
+
+  const playScene = useCallback((scene) => {
+    const audio = audioRef.current ?? new Audio();
+    audioRef.current = audio;
+    audio.loop = true;
+    audio.volume = 0.4;
+
+    const sound = {
+      beach: beachSound,
+      forest: forestSound,
+    }[scene];
+
+    if (!sound) {
+      playbackAttemptRef.current += 1;
+      audio.pause();
+      audio.removeAttribute("src");
+      delete audio.dataset.scene;
+      audio.load();
+      setPlaybackError("");
+      return;
+    }
+
+    if (audio.dataset.scene !== scene) {
+      audio.pause();
+      audio.src = sound;
+      audio.dataset.scene = scene;
+      audio.currentTime = 0;
+    }
+
+    const attempt = ++playbackAttemptRef.current;
+    setPlaybackError("");
+    audio.play().catch(() => {
+      if (attempt === playbackAttemptRef.current) {
+        setPlaybackError("Audio could not be played. Select the speaker to try again.");
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!mutedRef.current) playScene(backgroundScene);
+  }, [backgroundScene, playScene]);
+
+  useEffect(() => () => {
+    playbackAttemptRef.current += 1;
+    audioRef.current?.pause();
+  }, []);
+
+  const toggleSound = () => {
+    const nextMuted = !mutedRef.current;
+    mutedRef.current = nextMuted;
+    setMuted(nextMuted);
+
+    if (nextMuted) {
+      playbackAttemptRef.current += 1;
+      audioRef.current?.pause();
+      setPlaybackError("");
+    } else {
+      playScene(backgroundScene);
+    }
+  };
 
   return (
     <button
-      onClick={() => setMuted((m) => !m)}
-      title={muted ? "Unmute background music" : "Mute background music"}
+      onClick={toggleSound}
+      aria-label={playbackError || (muted ? "Unmute ambient sounds" : "Mute ambient sounds")}
+      aria-pressed={!muted}
+      title={playbackError || (muted ? "Unmute ambient sounds" : "Mute ambient sounds")}
       className="flex items-center justify-center w-9 h-9 rounded-xl text-gray-600 hover:bg-gray-100 transition-all"
     >
       {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -123,14 +188,16 @@ function SoundToggle() {
 
 // Profile — icon-only avatar trigger, dropdown shows name + logout
 
-function ProfileMenu({ displayName }) {
+function ProfileMenu({ displayName, user }) {
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
   const menuRef = useRef(null);
   useOnClickOutside([buttonRef, menuRef], () => setOpen(false));
   const navigate = useNavigate();
   const { clearAuth } = useAuthStore();
+  //const { logout } = useAuth();
 
   useLayoutEffect(() => {
     if (open && buttonRef.current) {
@@ -139,10 +206,12 @@ function ProfileMenu({ displayName }) {
     }
   }, [open]);
 
-  const handleLogout = () => {
+    const handleLogout = () => {
+  //const handleLogout = async () => {
     setOpen(false);
     clearAuth();
-    navigate("/login");
+    navigate("/");
+    //await logout();
   };
 
   return (
@@ -154,9 +223,11 @@ function ProfileMenu({ displayName }) {
         className={`flex items-center justify-center w-9 h-9 rounded-full transition-all
           ${open ? "ring-2 ring-indigo-200" : ""}`}
       >
-        <div className="w-8 h-8 rounded-full bg-orange-400 flex items-center justify-center flex-shrink-0">
-          <User size={15} className="text-white" />
-        </div>
+        {user?.profileImage
+          ? <img src={user.profileImage} alt="" className="h-8 w-8 rounded-full object-cover" />
+          : <div className="w-8 h-8 rounded-full bg-orange-400 flex items-center justify-center flex-shrink-0">
+              <User size={15} className="text-white" />
+            </div>}
       </button>
 
       {open && createPortal(
@@ -169,6 +240,12 @@ function ProfileMenu({ displayName }) {
             <p className="text-sm font-medium text-gray-700 truncate">{displayName}</p>
           </div>
           <button
+            onClick={() => { setOpen(false); setEditOpen(true); }}
+            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <Settings size={15} /> Edit profile
+          </button>
+          <button
             onClick={handleLogout}
             className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
           >
@@ -176,6 +253,12 @@ function ProfileMenu({ displayName }) {
           </button>
         </div>,
         document.body
+      )}
+      {editOpen && (
+        <EditProfileModal
+          user={user}
+          onClose={() => setEditOpen(false)}
+        />
       )}
     </>
   );
@@ -185,22 +268,26 @@ function ProfileMenu({ displayName }) {
 
 export default function Topbar() {
   const user = useAuthStore((state) => state.user);
-  const firstName = getFirstName(user);
+  const username = getUsername(user);
+  const location = useLocation();
+  const isDashboardPage = location.pathname === "/dashboard" || location.pathname.startsWith("/dashboard/");
 
   return (
-    <div className="bg-white border-b border-gray-100 px-6 py-4 flex-shrink-0 flex items-center justify-between">
-      <div>
-        <p className="text-xs text-gray-500 mb-0.5">Welcome,</p>
-        <p className="font-bold text-gray-800 text-lg leading-tight">
-          {firstName ?? "—"}
-        </p>
-      </div>
+    <div className="app-topbar bg-white border-b border-gray-100 px-6 py-4 flex-shrink-0 flex items-center justify-between gap-4">
+      {!isDashboardPage && (
+        <div>
+          <p className="text-xs text-gray-500 mb-0.5">Welcome,</p>
+          <p className="font-bold text-gray-800 text-lg leading-tight">
+            {username ?? "—"}
+          </p>
+        </div>
+      )}                                                                                                                                           
 
       {/* Action bar: Content · Sound · Profile — icons only */}
-      <div className="flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-1">
         <ContentMenu />
         <SoundToggle />
-        <ProfileMenu displayName={firstName ?? "Guest"} />
+        <ProfileMenu displayName={username ?? "Guest"} user={user} />
       </div>
     </div>
   );

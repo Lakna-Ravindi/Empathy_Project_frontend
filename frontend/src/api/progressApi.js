@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api`;
 
 const getToken = () => {
   try {
@@ -30,6 +30,7 @@ const apiRequest = async (endpoint, options = {}) => {
       localStorage.removeItem('token');
       localStorage.removeItem('access_token');
       window.location.assign('/login');
+      //window.location.assign('/');
     }
     const error = new Error(data.error || data.message || `Request failed with status ${response.status}`);
     error.status = response.status;
@@ -76,12 +77,35 @@ const getAllSkillProgress = async (skillIds = []) => {
   }, {});
 };
 
-const completeItem = (skillId, itemId) => {
-  if (!skillId) throw new Error('skillId is required.');
-  if (!itemId) throw new Error('itemId is required.');
+const completeItem = (skillId, itemId, itemType, source = 'skills_page', quizScore) => {
+  const normalizedSkillId = typeof skillId === 'object'
+    ? skillId?.skill_id || skillId?.chapter_id || skillId?.id
+    : skillId;
+  const normalizedItemId = typeof itemId === 'object'
+    ? itemId?.item_id || itemId?.activity_id || itemId?.video_id || itemId?.quiz_id || itemId?.id
+    : itemId;
+  if (!normalizedSkillId) throw new Error('skillId is required.');
+  if (!normalizedItemId) throw new Error('itemId is required.');
+  const body = {
+    skill_id: String(normalizedSkillId).trim(),
+    item_id: String(normalizedItemId).trim(),
+    source,
+    ...(itemType ? { item_type: String(itemType).trim().toLowerCase() } : {}),
+    ...(quizScore !== undefined ? { quiz_score: quizScore } : {}),
+  };
+  console.info('[progressApi.completeItem] request', body);
   return apiRequest('/progress/item-complete', {
     method: 'POST',
-    body: JSON.stringify({ skill_id: skillId, item_id: itemId }),
+    body: JSON.stringify(body),
+  });
+};
+
+const completeObjective = (skillId, objectiveId, completionContext = {}) => {
+  if (!skillId) throw new Error('skillId is required.');
+  if (!objectiveId) throw new Error('objectiveId is required.');
+  return apiRequest(`/objectives/${encodeURIComponent(objectiveId)}/complete`, {
+    method: 'POST',
+    body: JSON.stringify({ skill_id: skillId, ...completionContext }),
   });
 };
 
@@ -97,6 +121,7 @@ const calculateSkillPercentage = (progress, totalObjectives) => {
 const progressApi = {
   getProgress, getSkillProgress, getProgressStructure, getOverallProgress,
   getAllSkillProgress, completeItem,
+  completeObjective,
   isObjectiveCompleted, calculateSkillPercentage,
 };
 
@@ -104,5 +129,6 @@ export default progressApi;
 export {
   getProgress, getSkillProgress, getProgressStructure, getOverallProgress,
   getAllSkillProgress, completeItem,
+  completeObjective,
   isObjectiveCompleted, calculateSkillPercentage,
 };
